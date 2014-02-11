@@ -1,10 +1,15 @@
-
 Servo8Bit
 =========
 
 This is a fork of the original repo: [https://github.com/fri000/Servo8Bit](https://github.com/fri000/Servo8Bit)
 
 This version has been modified to work as an Arduino Library.
+
+Other changes:
+
+ * Fixed initializer bug (compiler related)
+ * Added support for 16MHz clocks
+
 
 
 How To Install
