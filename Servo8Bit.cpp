@@ -367,13 +367,13 @@ void ServoSequencer::setServoPin(uint8_t servoNumber, uint8_t newPin)
 //=============================================================================
 void ServoSequencer::enableDisableServo(uint8_t servoNumber, bool servoShouldBeEnabled)
 {
-    //make sure we got a valid slot number and the slot is registered to a servo
+	//make sure we got a valid slot number and the slot is registered to a servo
     if( (servoNumber < kMaxNumberOfServosSupported      ) &&
         (servoRegistry[servoNumber].slotOccupied == true)   )
     {
         if(servoShouldBeEnabled == true)
         {
-            //if this is the very first servo we are enabling then configure the servo timer
+             //if this is the very first servo we are enabling then configure the servo timer
             if( timerIsSetup == false)
             {
                 servoTimerSetup();
@@ -492,7 +492,14 @@ void ServoSequencer::setupTimerPrescaler()
         //reset the Timer Counter Control Register to its reset value
         TCCR0B = 0;
 
-        #if F_CPU == 8000000L
+        #if F_CPU == 16000000L
+            //set counter0 prescaler to 128
+            //our FCLK is 16mhz so this makes each timer tick be 8 microseconds long
+            TCCR0B |=  (1<< CS02); //set
+            TCCR0B &= ~(1<< CS01); //clear
+            TCCR0B |=  (1<< CS00); //set
+
+        #elif F_CPU == 8000000L
             //set counter0 prescaler to 64
             //our FCLK is 8mhz so this makes each timer tick be 8 microseconds long
             TCCR0B &= ~(1<< CS02); //clear
@@ -508,6 +515,7 @@ void ServoSequencer::setupTimerPrescaler()
         #else
             //unsupported clock speed
             //TODO: find a way to have the compiler stop compiling and bark at the user
+			#error clock speed not supported
         #endif
     #endif
 
@@ -516,7 +524,15 @@ void ServoSequencer::setupTimerPrescaler()
         //reset the Timer Counter Control Register to its reset value
         TCCR1 = 0;
 
-        #if F_CPU == 8000000L
+        #if F_CPU == 16000000L
+            //set counter1 prescaler to 128
+            //our F_CPU is 16mhz so this makes each timer tick be 8 microseconds long
+            TCCR1 |=  (1<< CS13); //set
+            TCCR1 &=  ~(1<< CS12); //clear
+            TCCR1 &=  ~(1<< CS11); //clear
+            TCCR1 &=  ~(1<< CS10); //clear
+
+        #elif F_CPU == 8000000L
             //set counter1 prescaler to 64
             //our F_CPU is 8mhz so this makes each timer tick be 8 microseconds long
             TCCR1 &= ~(1<< CS13); //clear
@@ -534,6 +550,7 @@ void ServoSequencer::setupTimerPrescaler()
         #else
             //unsupported clock speed
             //TODO: find a way to have the compiler stop compiling and bark at the user
+			#error clock speed not supported
         #endif
     #endif
 }//end setupTimerPrescaler
@@ -708,9 +725,10 @@ void ServoSequencer::timerCompareMatchISR()
 //
 // RETURNS:     Nothing
 //=============================================================================
-ISR(TIM0_COMPA_vect)
+ISR(TIM0_COMPA_vect) 
 {
-    ServoSequencer::timerCompareMatchISR();
+	ServoSequencer::timerCompareMatchISR();
+
 }//end ISR TIM0_COMPA_vect
 #endif
 
@@ -782,7 +800,7 @@ ISR(TIM1_COMPA_vect)
 //=============================================================================
 Servo8Bit::Servo8Bit()
 :invalidServoNumber(ServoSequencer::kInvalidServoIndex),
- myServoNumber(invalidServoNumber),
+ myServoNumber(ServoSequencer::kInvalidServoIndex),
  myMin(kDefaultMinimalPulse),
  myMax(kDefaultMaximumPulse)
 {
@@ -818,7 +836,7 @@ uint8_t Servo8Bit::attach(uint8_t pin)
 	//Do we need to register with the servo sequencer?
     if(myServoNumber == invalidServoNumber)
 	{
-		//Yep, we do, so register and save our servo number.
+	 //Yep, we do, so register and save our servo number.
 		myServoNumber = ServoSequencer::registerServo();
 		if(myServoNumber == invalidServoNumber)
 		{
@@ -834,7 +852,7 @@ uint8_t Servo8Bit::attach(uint8_t pin)
     //valid pin values are between 0 and 5, inclusive.
     if( pin <= 5 )
     {
-        DDRB |= (1<<pin); //set pin as output
+		DDRB |= (1<<pin); //set pin as output
         //set the servo pin
         ServoSequencer::setServoPin(myServoNumber, pin);
         //enable the servo to start outputing the pwm wave
