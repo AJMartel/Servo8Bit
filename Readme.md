@@ -11,6 +11,7 @@ Other changes:
 
  * Fixed initializer bug (compiler related)
  * Added support for 16MHz clocks
+ * Added support for Digistump @16.5MHz clock
 
 
 
