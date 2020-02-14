@@ -492,7 +492,14 @@ void ServoSequencer::setupTimerPrescaler()
         //reset the Timer Counter Control Register to its reset value
         TCCR0B = 0;
 
-        #if F_CPU == 16000000L
+        #if F_CPU == 16500000L
+            //set counter0 prescaler to 128
+            //our F_CPU is 16.5mhz so this makes each timer tick be 8 microseconds long
+            TCCR0B |= ~(1<< CS02); //clear
+            TCCR0B |=  (1<< CS01); //set
+            TCCR0B |= ~(1<< CS00); //clear
+	
+        #elif F_CPU == 16000000L
             //set counter0 prescaler to 128
             //our FCLK is 16mhz so this makes each timer tick be 8 microseconds long
             TCCR0B |=  (1<< CS02); //set
@@ -524,7 +531,15 @@ void ServoSequencer::setupTimerPrescaler()
         //reset the Timer Counter Control Register to its reset value
         TCCR1 = 0;
 
-        #if F_CPU == 16000000L
+        #if F_CPU == 16500000L
+            //set counter1 prescaler to 128
+            //our F_CPU is 16.5mhz so this makes each timer tick be 8 microseconds long
+            TCCR1 |=  (1<< CS13); //set
+            TCCR1 &=  ~(1<< CS12); //clear
+            TCCR1 &=  ~(1<< CS11); //clear
+            TCCR1 &=  ~(1<< CS10); //clear
+
+        #elif F_CPU == 16000000L
             //set counter1 prescaler to 128
             //our F_CPU is 16mhz so this makes each timer tick be 8 microseconds long
             TCCR1 |=  (1<< CS13); //set
