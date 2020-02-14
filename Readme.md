@@ -1,6 +1,8 @@
 Servo8Bit
 =========
 
+See [this code in action](https://www.youtube.com/watch?v=UvY2BeQav8k)
+
 This is a fork of the original repo: [https://github.com/fri000/Servo8Bit](https://github.com/fri000/Servo8Bit)
 
 This version has been modified to work as an Arduino Library.
